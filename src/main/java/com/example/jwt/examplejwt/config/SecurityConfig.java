@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,6 +19,9 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+
+import com.example.jwt.examplejwt.JWTAuthenticationFilter;
+import com.example.jwt.examplejwt.JWTAuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity /** Enables spring security */
@@ -52,10 +56,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    /** A realm is basically all that define our security solution from provider, to roles, to users */
    @Override
    protected void configure(HttpSecurity http) throws Exception {
-      http
+      http		// this disables session creation on Spring Security
               .sessionManagement()
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
               .and()
+              .addFilter(new JWTAuthenticationFilter(authenticationManager()))
+              .addFilter(new JWTAuthorizationFilter(authenticationManager()))
               .httpBasic()
               .realmName(securityRealm)
               .and()
